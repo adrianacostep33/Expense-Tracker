@@ -13,15 +13,15 @@ const ExpenseForm = ({
   const [inputs, setInputs] = useState({
     amount: {
       value: defaultValues ? defaultValues.amount.toString() : "",
-      isValid: !!defaultValues,
+      isValid: true,
     },
     date: {
       value: defaultValues ? defaultValues.date.toISOString().slice(0, 10) : "",
-      isValid: !!defaultValues,
+      isValid: true,
     },
     description: {
       value: defaultValues ? defaultValues.description : "",
-      isValid: !!defaultValues,
+      isValid: true,
     },
   });
 
@@ -46,16 +46,32 @@ const ExpenseForm = ({
     const descriptionIsValid = expenseData.description.trim().length > 0;
 
     if (!amountIsValide || !dateIsValide || !descriptionIsValid) {
-      Alert.alert("Invalid input.", "Please check your input values.");
+      //   Alert.alert("Invalid input.", "Please check your input values.");
       setInputs((currentinputs) => {
         return {
-          amount: { value: currentinputs },
+          amount: {
+            value: currentinputs.amount.value,
+            isValid: amountIsValide,
+          },
+          date: {
+            value: currentinputs.date.value,
+            isValid: dateIsValide,
+          },
+          description: {
+            value: currentinputs.description.value,
+            isValid: descriptionIsValid,
+          },
         };
       });
       return;
     }
     onSubmit(expenseData);
   }
+
+  formIsInvalid =
+    !inputs.amount.isValid ||
+    !inputs.date.isValid ||
+    !inputs.description.isValid;
 
   return (
     <View style={styles.form}>
@@ -64,6 +80,7 @@ const ExpenseForm = ({
         <Input
           style={styles.rowInput}
           label="Amount"
+          invalid={!inputs.amount.isValid}
           textInputConfig={{
             keyboardType: "decimal-pad",
             onChangeText: inputChangeHandler.bind(this, "amount"),
@@ -73,6 +90,7 @@ const ExpenseForm = ({
         <Input
           style={styles.rowInput}
           label="Date"
+          invalid={!inputs.date.isValid}
           textInputConfig={{
             placeholder: "YYYY-MM-DD",
             maxLangth: 10,
@@ -83,6 +101,7 @@ const ExpenseForm = ({
       </View>
       <Input
         label="Description"
+        invalid={!inputs.description.isValid}
         textInputConfig={{
           multiline: true,
           //   autoCorrect: true
@@ -91,6 +110,11 @@ const ExpenseForm = ({
           value: inputs.description.value,
         }}
       />
+      {formIsInvalid && (
+        <Text style={styles.errorText}>
+          Invalid input values - please check your entered data!{" "}
+        </Text>
+      )}
       <View style={styles.buttonContainer}>
         <Button style={styles.button} mode="flat" onPress={onCancel}>
           Cancel
